@@ -1,59 +1,50 @@
 package com.example.demo.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin("*")
 public class AuthController {
 
-    // ✅ ADD THIS (IMPORTANT)
     @Autowired
     private UserRepository userRepository;
 
-    // ================= SIGNUP =================
-    @PostMapping("/signup")
-    public Map<String, Object> signup(@RequestBody User user) {
-        Map<String, Object> res = new HashMap<>();
-
-        User existing = userRepository.findByEmail(user.getEmail());
-
-        if (existing != null) {
-            res.put("message", "User already exists");
-            return res;
-        }
-
-        user.setRole(user.getRole().toLowerCase()); // normalize
-        userRepository.save(user);
-
-        res.put("message", "Signup successful");
-        return res;
-    }
-
-    // ================= LOGIN =================
+    // ✅ LOGIN
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody User user) {
+
         Map<String, Object> res = new HashMap<>();
 
-        User existing = userRepository.findByEmail(user.getEmail());
+        // 🔍 find user
+        User existing = userRepository.findByEmail(user.getEmail().trim());
 
         if (existing == null) {
             res.put("message", "User not found");
             return res;
         }
 
-        if (!existing.getPassword().equals(user.getPassword())) {
+        // 🔥 SAFE PASSWORD CHECK
+        String dbPass = existing.getPassword() == null ? "" : existing.getPassword().trim();
+        String inputPass = user.getPassword() == null ? "" : user.getPassword().trim();
+
+        // 🔥 DEBUG (VERY IMPORTANT)
+        System.out.println("DB PASS = [" + dbPass + "]");
+        System.out.println("INPUT PASS = [" + inputPass + "]");
+
+        if (!dbPass.equals(inputPass)) {
             res.put("message", "Invalid password");
             return res;
         }
 
+        // 🔥 ROLE CHECK
         if (!existing.getRole().equalsIgnoreCase(user.getRole())) {
             res.put("message", "Wrong role selected");
             return res;
@@ -62,7 +53,17 @@ public class AuthController {
         // ✅ SUCCESS
         res.put("message", "Login successful");
         res.put("role", existing.getRole());
+        res.put("email", existing.getEmail());
 
         return res;
+    }
+
+    // ✅ SIGNUP
+    @PostMapping("/signup")
+    public User signup(@RequestBody User user) {
+        user.setEmail(user.getEmail().trim());
+        user.setPassword(user.getPassword().trim());
+        user.setRole(user.getRole().toLowerCase());
+        return userRepository.save(user);
     }
 }

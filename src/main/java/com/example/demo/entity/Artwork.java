@@ -3,28 +3,44 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "artworks") // matches MySQL table
+@Table(name = "artworks")
 public class Artwork {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
+    // BASIC INFO
     private String title;
     private String artist;
+
+    // MEDIA
     private String image;
+
+    @Column(length = 1000)
     private String description;
 
-    // Constructor
+    // DETAILS
+    private Double price;
+    private String category;
+    private Integer year;
+
+    // ✅ STATUS (IMPORTANT FOR ROLE SYSTEM)
+    private String status = "Pending"; // Pending / Approved / Rejected
+
+    // ✅ FEATURE FLAGS (OPTIONAL BUT GOOD FOR PROJECT)
+    private Boolean featured = false; // for homepage highlight
+
+    // CONSTRUCTOR
     public Artwork() {}
 
-    // Getters and Setters
+    // ================= GETTERS & SETTERS =================
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -58,5 +74,45 @@ public class Artwork {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Boolean getFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(Boolean featured) {
+        this.featured = featured;
     }
 }
